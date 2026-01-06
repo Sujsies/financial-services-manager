@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container-fluid">
+    <div class="row flex-nowrap">
+        
+        <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
+            <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
+                <span class="fs-5 pb-3 border-bottom w-100">Admin Panel</span>
+                <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start mt-3">
+                    <li>
+                        <a href="/" class="nav-link px-0 align-middle text-warning">
+                            <i class="fas fa-external-link-alt"></i> <span class="ms-1 d-none d-sm-inline">View Live Site</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="col py-3">
+            
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>Dashboard</h2>
+                
+                <form action="/admin" method="GET" class="d-flex">
+                    <input type="text" name="keyword" class="form-control me-2" placeholder="Search Client..." th:value="${keyword}">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-search"></i></button>
+                    <a href="/admin" class="btn btn-outline-secondary ms-1">Reset</a>
+                </form>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card shadow-sm p-3 mb-3">
+                        <h5 class="mb-3">Create Service</h5>
+                        <form action="/admin/save-service" method="POST" th:object="${newService}">
+                            <input type="text" th:field="*{title}" placeholder="Title" class="form-control mb-2" required>
+                            <input type="text" th:field="*{priceRange}" placeholder="Price (e.g. ₹500)" class="form-control mb-2">
+                            <button type="submit" class="btn btn-dark w-100">Add Service</button>
+                        </form>
+                    </div>
+
+                    <div class="card shadow-sm p-3">
+                        <h5>Active Services</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item d-flex justify-content-between align-items-center" th:each="s : ${services}">
+                                <span th:text="${s.title}">Title</span>
+                                <div>
+                                    <a th:href="@{/admin/edit-service/{id}(id=${s.id})}" class="btn btn-sm btn-outline-primary me-1">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a th:href="@{/admin/delete-service/{id}(id=${s.id})}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure?');">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="card shadow-sm p-3">
+                        <h4 class="mb-3 text-primary">Enquiries / Leads</h4>
+                        <table class="table table-hover align-middle">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Phone</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="e : ${enquiries}">
+                                    <td th:text="${e.clientName}">Name</td>
+                                    <td>
+                                        <a th:href="'tel:' + ${e.clientPhone}" class="text-decoration-none" th:text="${e.clientPhone}">Phone</a>
+                                    </td>
+                                    <td>
+                                        <span th:if="${e.status == 'PENDING'}" class="badge bg-warning text-dark">Pending</span>
+                                        <span th:if="${e.status != 'PENDING'}" class="badge bg-success">Done</span>
+                                    </td>
+                                    <td>
+                                        <a th:href="@{/admin/toggle-status/{id}(id=${e.id})}" class="btn btn-sm btn-outline-primary">
+                                            Change Status
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr th:if="${#lists.isEmpty(enquiries)}">
+                                    <td colspan="4" class="text-center text-muted">No clients found matching your search.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
